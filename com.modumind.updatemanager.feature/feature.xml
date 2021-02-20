@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="com.modumind.updatemanager.feature"
+      label="Update Manager Service"
+      version="1.0.0.qualifier"
+      provider-name="Modular Mind, Ltd.">
+
+   <description url="http://www.example.com/description">
+      [Enter Feature Description here.]
+   </description>
+
+   <copyright>
+      Copyright (c) 2021 Modular Mind, Ltd. All rights reserved.
+   </copyright>
+
+   <license url="http://www.eclipse.org/legal/epl-v20.html">
+      See attached EPL-2.0.txt file.
+   </license>
+
+   <requires>
+      <import feature="org.eclipse.equinox.p2.core.feature" version="1.6.800.v20201106-1246"/>
+      <import feature="org.eclipse.e4.rcp" version="4.18.0.v20201202-1103"/>
+      <import feature="org.eclipse.emf.common" version="2.21.0.v20200917-1439"/>
+      <import feature="org.eclipse.emf.ecore" version="2.23.0.v20200630-0516"/>
+      <import feature="org.eclipse.rcp" version="4.18.0.v20201202-1800"/>
+      <import feature="org.eclipse.equinox.core.feature" version="1.13.0.v20201107-1818"/>
+   </requires>
+
+   <plugin
+         id="com.modumind.updatemanager.service"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="com.modumind.updatemanager.example.feature"
+      label="Update Manager Example Feature"
+      version="1.0.0.qualifier"
+      provider-name="Modular Mind, Ltd.">
+
+   <description url="http://www.eclipse.org/legal/epl-v20.html">
+      See attached EPL-2.0.txt file.
+   </description>
+
+   <copyright>
+      Copyright (c) 2021 Modular Mind, Ltd. All rights reserved.
+   </copyright>
+
+   <license url="http://www.eclipse.org/legal/epl-v20.html">
+      See attached EPL-2.0.txt file.
+   </license>
+
+   <requires>
+      <import feature="com.modumind.updatemanager.feature" version="1.0.0.qualifier"/>
+      <import feature="org.eclipse.rcp" version="4.18.0.v20201202-1800"/>
+   </requires>
+
+   <plugin
+         id="com.modumind.updatemanager.example.ui"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>

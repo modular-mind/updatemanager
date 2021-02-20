@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="com.modumind.updatemanager.service.impl.UpdateManagerImpl">
+   <service>
+      <provide interface="com.modumind.updatemanager.service.UpdateManager"/>
+   </service>
+   <reference bind="setProvisioningAgentProvider" interface="org.eclipse.equinox.p2.core.IProvisioningAgentProvider" name="ProvisioningAgentProvider"/>
+   <implementation class="com.modumind.updatemanager.service.impl.UpdateManagerImpl"/>
+</scr:component>

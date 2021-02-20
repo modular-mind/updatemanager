@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Update Manager Example Usage
+Bundle-SymbolicName: com.modumind.updatemanager.example.ui;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Modular Mind, Ltd.
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.ui,
+ org.apache.felix.scr,
+ org.eclipse.equinox.event,
+ com.modumind.updatemanager.service,
+ org.eclipse.e4.ui.workbench
+Automatic-Module-Name: com.modumind.updatemanager.example
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Import-Package: javax.inject,
+ org.eclipse.e4.ui.workbench.lifecycle
+Bundle-Activator: com.modumind.updatemanager.example.ui.Activator
+Bundle-ActivationPolicy: lazy

@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Update Manager Service Bundle
+Bundle-SymbolicName: com.modumind.updatemanager.service
+Automatic-Module-Name: com.modumind.updatemanager.service
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Modular Mind, Ltd.
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.equinox.p2.core,
+ org.eclipse.equinox.p2.engine,
+ org.eclipse.equinox.p2.operations,
+ org.eclipse.equinox.p2.repository,
+ org.eclipse.equinox.p2.metadata
+Import-Package: org.osgi.service.component.annotations
+Service-Component: OSGI-INF/com.modumind.updatemanager.service.impl.UpdateManagerImpl.xml
+Export-Package: com.modumind.updatemanager.service
+
