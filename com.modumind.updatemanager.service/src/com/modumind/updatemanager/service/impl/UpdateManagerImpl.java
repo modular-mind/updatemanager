@@ -374,8 +374,10 @@ public class UpdateManagerImpl implements UpdateManager {
 	}
 
 	private void log(String message) {
-		if (this.logger == null)
+		if (this.logger == null) {
 			System.out.println(message);
+			return;
+		}
 		
 		this.logger.log(message);
 	}
