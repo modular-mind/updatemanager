@@ -50,7 +50,7 @@ For applications using the compatibility layer, I’ve found a good pattern is t
 
 ## Using the auto-updater in a lifecycle manager
 
-It’s also possible to use the auto-updater in a lifecycle handler class. The call should be made in a method with `@PostContextCreate` annotation. Unfortunately it’s not possible to access the workbench in this method to restart the application, so [you’ll need to add a listener to do that work](https://stackoverflow.com/questions/23342341/restart-eclipse-4-rcp-application-before-it-gets-visible). Also, in this case you’ll see the workbench window briefly appear before the restart.
+It’s also possible to use the auto-updater in a lifecycle handler class. The call should be made in the method with an `@PostContextCreate` annotation. Unfortunately it’s not possible to access the workbench in this method to restart the application, so [you’ll need to add a listener to do that work](https://stackoverflow.com/questions/23342341/restart-eclipse-4-rcp-application-before-it-gets-visible). Also, in this case you’ll see the workbench window briefly appear before the restart.
 
 On a side note, Tom Schindl has done some work for the e(fx)clipse project that [provides restart capability from the lifecycle handler](https://tomsondev.bestsolution.at/2014/11/03/efxclipse-1-1-new-features-api-to-restart-your-e4-app-on-startup/). I’ve added a [Bugzilla entry](https://bugs.eclipse.org/bugs/show_bug.cgi?id=571412) to see if we can reuse this logic more generally.
 
