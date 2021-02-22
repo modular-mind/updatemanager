@@ -13,24 +13,20 @@
  *******************************************************************************/
 package com.modumind.updatemanager.service;
 
-import org.eclipse.equinox.p2.core.ProvisionException;
-
 /**
- * Service responsible for discovering updates and new features to install, and
- * then applying them to a local Eclipse RCP application installation.
+ * Mechanism to return the location of the p2 repository to query for updates
+ * and new features.
  * 
- * This service is made available as an OSGi service through Declarative
- * Services.
+ * If no locator is provided, the default is to specify a p2 repository URI as a
+ * command line parameter:
+ * 
+ * -Drepository=https://my.p2.repo
  */
-public interface UpdateManager {
+public interface UpdateManagerRepositoryLocator {
 
 	/**
-	 * Main update method that runs auto-update process. This is usually called very
-	 * early in the startup process, usually in a life cycle handler or splash
-	 * handler.
-	 * 
-	 * @return whether an update or install occurred
-	 * @throws ProvisionException
+	 * @return repository location as a string. The framework will evaluate whether
+	 *         it's a valid URI.
 	 */
-	public boolean performAutoUpdate();
+	String getRepositoryLocation();
 }

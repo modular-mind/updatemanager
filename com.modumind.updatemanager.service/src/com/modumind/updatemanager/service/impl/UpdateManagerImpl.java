@@ -45,9 +45,13 @@ import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.prefs.BackingStoreException;
 
 import com.modumind.updatemanager.service.UpdateManager;
+import com.modumind.updatemanager.service.UpdateManagerInstallFilter;
+import com.modumind.updatemanager.service.UpdateManagerLogger;
+import com.modumind.updatemanager.service.UpdateManagerRepositoryLocator;
 
 @Component(service = UpdateManager.class, immediate = true)
 public class UpdateManagerImpl implements UpdateManager {
@@ -57,49 +61,10 @@ public class UpdateManagerImpl implements UpdateManager {
 
 	private IMetadataRepository metadataRepository = null;
 	private IProvisioningAgentProvider provisioingAgentProvider = null;
-
-	/*
-	 * Methods that can be overridden (or re-coded) to configure base update logic
-	 */
-
-	/**
-	 * @return the repository URI from a system property. This method can be
-	 *         overridden to retrieve the URI in any way you like.
-	 */
-	protected String getRepositoryUri() {
-		return System.getProperty("repository");
-	}
-
-	/**
-	 * Determine whether a feature should be installed or not. This method will only
-	 * be called for features found in the remote p2 repository that are not already
-	 * installed locally.
-	 * 
-	 * One strategy is to compare the feature id to the permissions for the current
-	 * user. This allows you to install separate feature-sets for users based on
-	 * their role.
-	 * 
-	 * Currently set to ignore new features so manager only updates existing
-	 * features.
-	 * 
-	 * @param iu feature requested for installation
-	 * @return whether feature should be installed or not, currently set to install
-	 *         all features found in the repository. Override to perform any logic
-	 *         you like.
-	 */
-	protected boolean shouldFeatureBeInstalled(IInstallableUnit iu) {
-		return false;
-	}
-
-	/**
-	 * Log however you like. Could also inject a logger using DS.
-	 * 
-	 * @param message
-	 */
-	protected void log(String message) {
-		System.out.println(message);
-	}
-
+	private UpdateManagerInstallFilter installFilter = null;
+	private UpdateManagerRepositoryLocator repositoryLocator = null;
+	private UpdateManagerLogger logger = null;
+	
 	/* Binding method for Declarative Services */
 
 	@Reference
@@ -107,7 +72,22 @@ public class UpdateManagerImpl implements UpdateManager {
 		this.provisioingAgentProvider = provisioningAgentProvider;
 	}
 
-	/* Regular methods that should not be overridden */
+	@Reference(cardinality=ReferenceCardinality.OPTIONAL)
+	protected void setUpdateManagerInstallFilter(UpdateManagerInstallFilter installFilter) {
+		this.installFilter = installFilter;
+	}
+	
+	@Reference(cardinality=ReferenceCardinality.OPTIONAL)
+	protected void setUpdateManagerRepositoryLocator(UpdateManagerRepositoryLocator repositoryLocator) {
+		this.repositoryLocator = repositoryLocator;
+	}
+
+	@Reference(cardinality=ReferenceCardinality.OPTIONAL)
+	protected void setUpdateManagerLogger(UpdateManagerLogger logger) {
+		this.logger = logger;
+	}
+
+	/* Public methods */
 
 	@Override
 	public boolean performAutoUpdate() {
@@ -226,6 +206,8 @@ public class UpdateManagerImpl implements UpdateManager {
 		return false;
 	}
 
+	/* Private methods */
+	
 	/**
 	 * Load the p2 repository. This should only be done once as the operation is
 	 * expensive.
@@ -376,4 +358,26 @@ public class UpdateManagerImpl implements UpdateManager {
 			this.log("Error setting just updated flag - " + e.getMessage());
 		}
 	}
+	
+	private String getRepositoryUri() {
+		if (this.repositoryLocator == null) 
+			return System.getProperty("repository");
+		
+		return this.repositoryLocator.getRepositoryLocation();
+	}
+
+	private boolean shouldFeatureBeInstalled(IInstallableUnit iu) {
+		if (this.installFilter == null)
+			return false;
+		
+		return this.installFilter.shouldFeatureBeInstalled(iu);
+	}
+
+	private void log(String message) {
+		if (this.logger == null)
+			System.out.println(message);
+		
+		this.logger.log(message);
+	}
+
 }
