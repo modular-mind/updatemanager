@@ -13,7 +13,7 @@ Because I get asked about this quite a bit, I’ve decided to create a version o
 
 While you can download the auto-updater source as well as the example usage projects, you can also simply add the feature to your product using this p2 repository.
 
-https://github.com/modular-mind/updatemanager/tree/master/repository
+https://github.com/modular-mind/updatemanager/raw/master/repository/
 
 When you run your application, the `UpdateManager` service will be deployed using Declarative Services and can be accessed as other OSGi services can.
 
