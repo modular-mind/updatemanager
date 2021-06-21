@@ -29,10 +29,14 @@
                name="windowImages"
                value="icons/eclipse16.png,icons/eclipse32.png,icons/eclipse48.png,icons/eclipse64.png, icons/eclipse128.png,icons/eclipse256.png">
          </property>
-   <property
-         name="appName"
-         value="Update Manager Example">
-   </property>
+	     <property
+         	name="appName"
+         	value="Update Manager Example">
+   		 </property>
+		 <property
+    		name="lifeCycleURI"
+    		value="bundleclass://com.modumind.updatemanager.example.ui/com.modumind.updatemanager.example.ui.LifecycleHandler">
+		 </property>
       </product>
    </extension>
    <extension
