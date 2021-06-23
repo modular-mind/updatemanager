@@ -58,7 +58,8 @@ public class UpdateManagerImpl implements UpdateManager {
 
 	private static final String JUSTUPDATED = "justUpdated";
 	private static final String PLUGIN_ID = "com.modumind.updatemanager.service";
-
+	private static final String REPOSITORY_ARG_NAME = "repository";
+	
 	private IMetadataRepository metadataRepository = null;
 	private IProvisioningAgentProvider provisioingAgentProvider = null;
 	private UpdateManagerInstallFilter installFilter = null;
@@ -224,7 +225,7 @@ public class UpdateManagerImpl implements UpdateManager {
 			String repositoryUri = getRepositoryUri();
 			if (repositoryUri == null || repositoryUri.isEmpty())
 				return new Status(Status.ERROR, PLUGIN_ID,
-						"No repository specified. Add -DrepositoryUrl= to your INI file.");
+						"No repository specified. Add -D" + REPOSITORY_ARG_NAME + " to your INI file.");
 
 			IMetadataRepositoryManager manager = (IMetadataRepositoryManager) provisioningAgent
 					.getService(IMetadataRepositoryManager.SERVICE_NAME);
@@ -361,7 +362,7 @@ public class UpdateManagerImpl implements UpdateManager {
 	
 	private String getRepositoryUri() {
 		if (this.repositoryLocator == null) 
-			return System.getProperty("repository");
+			return System.getProperty(REPOSITORY_ARG_NAME);
 		
 		return this.repositoryLocator.getRepositoryLocation();
 	}
