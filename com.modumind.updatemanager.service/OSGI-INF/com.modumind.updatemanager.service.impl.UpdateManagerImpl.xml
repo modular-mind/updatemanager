@@ -4,5 +4,8 @@
       <provide interface="com.modumind.updatemanager.service.UpdateManager"/>
    </service>
    <reference bind="setProvisioningAgentProvider" interface="org.eclipse.equinox.p2.core.IProvisioningAgentProvider" name="ProvisioningAgentProvider"/>
+   <reference bind="setUpdateManagerInstallFilter" cardinality="0..1" interface="com.modumind.updatemanager.service.UpdateManagerInstallFilter" name="UpdateManagerInstallFilter"/>
+   <reference bind="setUpdateManagerLogger" cardinality="0..1" interface="com.modumind.updatemanager.service.UpdateManagerLogger" name="UpdateManagerLogger"/>
+   <reference bind="setUpdateManagerRepositoryLocator" cardinality="0..1" interface="com.modumind.updatemanager.service.UpdateManagerRepositoryLocator" name="UpdateManagerRepositoryLocator"/>
    <implementation class="com.modumind.updatemanager.service.impl.UpdateManagerImpl"/>
 </scr:component>

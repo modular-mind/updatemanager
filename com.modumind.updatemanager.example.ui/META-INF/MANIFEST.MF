@@ -13,6 +13,8 @@ Require-Bundle: org.eclipse.core.runtime,
 Automatic-Module-Name: com.modumind.updatemanager.example
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Import-Package: javax.inject,
- org.eclipse.e4.ui.workbench.lifecycle
+ org.eclipse.e4.ui.workbench.lifecycle,
+ org.osgi.service.component.annotations
 Bundle-Activator: com.modumind.updatemanager.example.ui.Activator
 Bundle-ActivationPolicy: lazy
+Service-Component: OSGI-INF/com.modumind.updatemanager.example.ui.ExampleUpdateManagerLogger.xml

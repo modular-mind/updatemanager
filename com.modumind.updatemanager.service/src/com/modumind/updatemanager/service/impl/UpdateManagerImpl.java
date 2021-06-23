@@ -111,7 +111,7 @@ public class UpdateManagerImpl implements UpdateManager {
 		try {
 			agent = this.provisioingAgentProvider.createAgent(null);
 		} catch (ProvisionException e) {
-			this.log("Error creating provisioning agent - " + e.getMessage());
+			this.log("Error creating provisioning agent - " + e.getMessage(), e);
 			return false;
 		}
 
@@ -125,7 +125,7 @@ public class UpdateManagerImpl implements UpdateManager {
 
 		IProfile profile = profileRegistry.getProfile(IProfileRegistry.SELF);
 		if (profile == null) {
-			this.log("No profile found for this installation, ending auto update process");
+			this.log("No profile found for this installation, ending auto update process. Profiles are not available when running in Eclipse.");
 			return false;
 		}
 
@@ -164,7 +164,7 @@ public class UpdateManagerImpl implements UpdateManager {
 						log("Updates installed, restart required");
 					} else {
 						log("Update failed, skipping installation step");
-						log(status.getException().getMessage());
+						log(status.getException().getMessage(), status.getException());
 						return;
 					}
 				}
@@ -184,7 +184,7 @@ public class UpdateManagerImpl implements UpdateManager {
 						log("New artifacts installed, restart required");
 					} else {
 						log("Install failed");
-						log(status.getException().getMessage());
+						log(status.getException().getMessage(), status.getException());
 					}
 				}
 			}
@@ -232,7 +232,7 @@ public class UpdateManagerImpl implements UpdateManager {
 			try {
 				metadataRepository = manager.loadRepository(new URI(repositoryUri), new NullProgressMonitor());
 			} catch (Exception e) {
-				this.log("Failed to load metadata repository at location " + repositoryUri);
+				this.log("Failed to load metadata repository at location " + repositoryUri, e);
 				return new Status(Status.ERROR, PLUGIN_ID, e.getMessage(), e);
 			}
 
@@ -343,7 +343,7 @@ public class UpdateManagerImpl implements UpdateManager {
 
 	private void dumpStatus(IStatus status) {
 		this.log("Status severity=" + status.getSeverity() + ", message=" + status.getMessage() + ", code="
-				+ status.getCode());
+				+ status.getCode(), status.getException());
 		if (status.isMultiStatus())
 			for (IStatus child : status.getChildren())
 				dumpStatus(child);
@@ -355,7 +355,7 @@ public class UpdateManagerImpl implements UpdateManager {
 		try {
 			preferences.flush();
 		} catch (BackingStoreException e) {
-			this.log("Error setting just updated flag - " + e.getMessage());
+			this.log("Error setting just updated flag - " + e.getMessage(), e);
 		}
 	}
 	
@@ -381,5 +381,16 @@ public class UpdateManagerImpl implements UpdateManager {
 		
 		this.logger.log(message);
 	}
+	
+	private void log(String message, Throwable e) {
+		if (this.logger == null) {
+			System.out.println(message);
+			e.printStackTrace();
+			return;
+		}
+		
+		this.logger.log(message, e);
+	}
+
 
 }

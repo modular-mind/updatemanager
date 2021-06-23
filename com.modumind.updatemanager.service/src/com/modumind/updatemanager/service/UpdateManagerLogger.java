@@ -21,4 +21,6 @@ package com.modumind.updatemanager.service;
 public interface UpdateManagerLogger {
 
 	void log(String message);
+	
+	void log(String message, Throwable e);
 }
