@@ -369,7 +369,7 @@ public class UpdateManagerImpl implements UpdateManager {
 
 	private boolean shouldFeatureBeInstalled(IInstallableUnit iu) {
 		if (this.installFilter == null)
-			return false;
+			return true;
 		
 		return this.installFilter.shouldFeatureBeInstalled(iu);
 	}
