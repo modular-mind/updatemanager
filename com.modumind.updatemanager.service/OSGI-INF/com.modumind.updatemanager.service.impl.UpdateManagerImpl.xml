@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="com.modumind.updatemanager.service.impl.UpdateManagerImpl">
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.2.0" immediate="true" name="com.modumind.updatemanager.service.impl.UpdateManagerImpl">
    <service>
       <provide interface="com.modumind.updatemanager.service.UpdateManager"/>
    </service>
    <reference bind="setProvisioningAgentProvider" interface="org.eclipse.equinox.p2.core.IProvisioningAgentProvider" name="ProvisioningAgentProvider"/>
-   <reference bind="setUpdateManagerInstallFilter" cardinality="0..1" interface="com.modumind.updatemanager.service.UpdateManagerInstallFilter" name="UpdateManagerInstallFilter"/>
-   <reference bind="setUpdateManagerLogger" cardinality="0..1" interface="com.modumind.updatemanager.service.UpdateManagerLogger" name="UpdateManagerLogger"/>
-   <reference bind="setUpdateManagerRepositoryLocator" cardinality="0..1" interface="com.modumind.updatemanager.service.UpdateManagerRepositoryLocator" name="UpdateManagerRepositoryLocator"/>
+   <reference bind="setUpdateManagerInstallFilter" cardinality="0..1" interface="com.modumind.updatemanager.service.UpdateManagerInstallFilter" name="UpdateManagerInstallFilter" policy-option="greedy"/>
+   <reference bind="setUpdateManagerLogger" cardinality="0..1" interface="com.modumind.updatemanager.service.UpdateManagerLogger" name="UpdateManagerLogger" policy-option="greedy"/>
+   <reference bind="setUpdateManagerRepositoryLocator" cardinality="0..1" interface="com.modumind.updatemanager.service.UpdateManagerRepositoryLocator" name="UpdateManagerRepositoryLocator" policy-option="greedy"/>
    <implementation class="com.modumind.updatemanager.service.impl.UpdateManagerImpl"/>
 </scr:component>

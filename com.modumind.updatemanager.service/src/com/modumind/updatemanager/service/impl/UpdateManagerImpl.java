@@ -46,6 +46,7 @@ import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.prefs.BackingStoreException;
 
 import com.modumind.updatemanager.service.UpdateManager;
@@ -73,17 +74,17 @@ public class UpdateManagerImpl implements UpdateManager {
 		this.provisioingAgentProvider = provisioningAgentProvider;
 	}
 
-	@Reference(cardinality=ReferenceCardinality.OPTIONAL)
+	@Reference(cardinality=ReferenceCardinality.OPTIONAL, policyOption = ReferencePolicyOption.GREEDY)
 	protected void setUpdateManagerInstallFilter(UpdateManagerInstallFilter installFilter) {
 		this.installFilter = installFilter;
 	}
 	
-	@Reference(cardinality=ReferenceCardinality.OPTIONAL)
+	@Reference(cardinality=ReferenceCardinality.OPTIONAL, policyOption = ReferencePolicyOption.GREEDY)
 	protected void setUpdateManagerRepositoryLocator(UpdateManagerRepositoryLocator repositoryLocator) {
 		this.repositoryLocator = repositoryLocator;
 	}
 
-	@Reference(cardinality=ReferenceCardinality.OPTIONAL)
+	@Reference(cardinality=ReferenceCardinality.OPTIONAL, policyOption = ReferencePolicyOption.GREEDY)
 	protected void setUpdateManagerLogger(UpdateManagerLogger logger) {
 		this.logger = logger;
 	}
@@ -374,12 +375,13 @@ public class UpdateManagerImpl implements UpdateManager {
 	}
 
 	private void log(String message) {
-		if (this.logger == null) {
+		UpdateManagerLogger logger = this.logger;
+		if (logger == null) {
 			System.out.println(message);
 			return;
 		}
 		
-		this.logger.log(message);
+		logger.log(message);
 	}
 	
 	private void log(String message, Throwable e) {
@@ -389,12 +391,13 @@ public class UpdateManagerImpl implements UpdateManager {
 			return;
 		}
 		
-		if (this.logger == null) {
+		UpdateManagerLogger logger = this.logger;
+		if (logger == null) {
 			System.out.println(message);
 			e.printStackTrace();
 			return;
 		}
 		
-		this.logger.log(message, e);
+		logger.log(message, e);
 	}
 }
