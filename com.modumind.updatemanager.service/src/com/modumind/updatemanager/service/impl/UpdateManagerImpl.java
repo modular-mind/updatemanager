@@ -386,6 +386,7 @@ public class UpdateManagerImpl implements UpdateManager {
 		/* Exception may be null when logging a Status object */
 		if (e == null) {
 			log(message);
+			return;
 		}
 		
 		if (this.logger == null) {
