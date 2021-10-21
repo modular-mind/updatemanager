@@ -343,8 +343,7 @@ public class UpdateManagerImpl implements UpdateManager {
 	}
 
 	private void dumpStatus(IStatus status) {
-		this.log("Status severity=" + status.getSeverity() + ", message=" + status.getMessage() + ", code="
-				+ status.getCode(), status.getException());
+		this.log(status.toString(), status.getException());
 		if (status.isMultiStatus())
 			for (IStatus child : status.getChildren())
 				dumpStatus(child);
@@ -384,6 +383,11 @@ public class UpdateManagerImpl implements UpdateManager {
 	}
 	
 	private void log(String message, Throwable e) {
+		/* Exception may be null when logging a Status object */
+		if (e == null) {
+			log(message);
+		}
+		
 		if (this.logger == null) {
 			System.out.println(message);
 			e.printStackTrace();
@@ -392,6 +396,4 @@ public class UpdateManagerImpl implements UpdateManager {
 		
 		this.logger.log(message, e);
 	}
-
-
 }
