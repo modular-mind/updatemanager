@@ -23,7 +23,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -60,13 +59,14 @@ public class UpdateManagerImpl implements UpdateManager {
 	private static final String JUSTUPDATED = "justUpdated";
 	private static final String PLUGIN_ID = "com.modumind.updatemanager.service";
 	private static final String REPOSITORY_ARG_NAME = "repository";
-	
+
 	private IMetadataRepository metadataRepository = null;
 	private IProvisioningAgentProvider provisioingAgentProvider = null;
+	private IProfileRegistry profileRegistry = null;
 	private UpdateManagerInstallFilter installFilter = null;
 	private UpdateManagerRepositoryLocator repositoryLocator = null;
 	private UpdateManagerLogger logger = null;
-	
+
 	/* Binding method for Declarative Services */
 
 	@Reference
@@ -74,17 +74,17 @@ public class UpdateManagerImpl implements UpdateManager {
 		this.provisioingAgentProvider = provisioningAgentProvider;
 	}
 
-	@Reference(cardinality=ReferenceCardinality.OPTIONAL, policyOption = ReferencePolicyOption.GREEDY)
+	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policyOption = ReferencePolicyOption.GREEDY)
 	protected void setUpdateManagerInstallFilter(UpdateManagerInstallFilter installFilter) {
 		this.installFilter = installFilter;
 	}
-	
-	@Reference(cardinality=ReferenceCardinality.OPTIONAL, policyOption = ReferencePolicyOption.GREEDY)
+
+	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policyOption = ReferencePolicyOption.GREEDY)
 	protected void setUpdateManagerRepositoryLocator(UpdateManagerRepositoryLocator repositoryLocator) {
 		this.repositoryLocator = repositoryLocator;
 	}
 
-	@Reference(cardinality=ReferenceCardinality.OPTIONAL, policyOption = ReferencePolicyOption.GREEDY)
+	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policyOption = ReferencePolicyOption.GREEDY)
 	protected void setUpdateManagerLogger(UpdateManagerLogger logger) {
 		this.logger = logger;
 	}
@@ -93,7 +93,9 @@ public class UpdateManagerImpl implements UpdateManager {
 
 	@Override
 	public boolean performAutoUpdate() {
-		this.log("Starting P2 auto-update process");
+		log("----------------------------------------------------------------");
+		this.log("Initializing P2 auto-update process");
+		log("----------------------------------------------------------------");
 
 		/*
 		 * Check to make sure that we are not restarting after an update. If we are,
@@ -119,97 +121,35 @@ public class UpdateManagerImpl implements UpdateManager {
 
 		this.log("Provisioning agent created");
 
-		IProfileRegistry profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+		this.profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 		if (profileRegistry == null) {
 			this.log("Could not locate the Profile Registry, ending auto update process");
-			return false;
-		}
-
-		IProfile profile = profileRegistry.getProfile(IProfileRegistry.SELF);
-		if (profile == null) {
-			this.log("No profile found for this installation, ending auto update process. Profiles are not available when running in Eclipse.");
 			return false;
 		}
 
 		ProvisioningSession session = new ProvisioningSession(agent);
 		this.log("Provisioning session created");
 
-		/*
-		 * Create the jobs to update and install features.
-		 */
-		final ProvisioningJob updateJob = getUpdateJob(session, profile);
-		final ProvisioningJob installJob = getInstallJob(session, profile);
+		log("----------------------------------------------------------------");
+		log("Processing updates");
+		log("----------------------------------------------------------------");
+		runProvisioningJob(getUpdateJob(session));
 
-		/*
-		 * Create a runnable to execute the update. We'll show a dialog during the
-		 * process and then return when the runnable is complete.
-		 */
-		final boolean[] restartRequired = new boolean[] { false };
-		IRunnableWithProgress runnable = new IRunnableWithProgress() {
+		log("----------------------------------------------------------------");
+		log("Process installs");
+		log("----------------------------------------------------------------");
+		runProvisioningJob(getInstallJob(session));
+		
+		agent.stop();
 
-			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-				SubMonitor subMon = SubMonitor.convert(monitor, 200);
-				IStatus status = null;
-
-				if (updateJob != null) {
-					status = updateJob.runModal(subMon.newChild(100));
-
-					dumpStatus(status);
-				} else {
-					subMon.worked(100);
-				}
-
-				if (updateJob != null) {
-					if (status.getSeverity() != IStatus.ERROR) {
-						setJustUpdated(true);
-						restartRequired[0] = true;
-						log("Updates installed, restart required");
-					} else {
-						log("Update failed, skipping installation step");
-						log(status.getException().getMessage(), status.getException());
-						return;
-					}
-				}
-
-				if (installJob != null) {
-					status = installJob.runModal(subMon.newChild(100));
-
-					dumpStatus(status);
-				} else {
-					subMon.worked(100);
-				}
-
-				if (installJob != null) {
-					if (status.getSeverity() != IStatus.ERROR) {
-						setJustUpdated(true);
-						restartRequired[0] = true;
-						log("New artifacts installed, restart required");
-					} else {
-						log("Install failed");
-						log(status.getException().getMessage(), status.getException());
-					}
-				}
-			}
-		};
-
-		/*
-		 * Execute the runnable and wait for it to complete.
-		 */
-		try {
-			new ProgressMonitorDialog(null).run(true, false, runnable);
-			return restartRequired[0];
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-		} finally {
-			agent.stop();
-		}
-
-		return false;
+		log("----------------------------------------------------------------");
+		log("Auto-update processing complete. Return restart flag: " + isJustUpdated());
+		log("----------------------------------------------------------------");
+		return isJustUpdated();
 	}
 
 	/* Private methods */
-	
+
 	/**
 	 * Load the p2 repository. This should only be done once as the operation is
 	 * expensive.
@@ -256,7 +196,7 @@ public class UpdateManagerImpl implements UpdateManager {
 		return Status.OK_STATUS;
 	}
 
-	private ProvisioningJob getUpdateJob(ProvisioningSession provisioningSession, IProfile profile) {
+	private ProvisioningJob getUpdateJob(ProvisioningSession provisioningSession) {
 		IStatus loadStatus;
 
 		if ((loadStatus = loadP2Repository(provisioningSession.getProvisioningAgent())) != Status.OK_STATUS) {
@@ -277,7 +217,7 @@ public class UpdateManagerImpl implements UpdateManager {
 
 			Update[] possibleUpdates = updateOperation.getPossibleUpdates();
 
-			this.log("Possible updates:");
+			this.log("Updates found:");
 
 			for (Update update : possibleUpdates) {
 				this.log(" - " + update);
@@ -292,11 +232,17 @@ public class UpdateManagerImpl implements UpdateManager {
 		return null;
 	}
 
-	private ProvisioningJob getInstallJob(ProvisioningSession provisioningSession, IProfile profile) {
-		IStatus loadStatus;
-
-		if ((loadStatus = loadP2Repository(provisioningSession.getProvisioningAgent())) != Status.OK_STATUS) {
+	private ProvisioningJob getInstallJob(ProvisioningSession provisioningSession) {
+		IStatus loadStatus = loadP2Repository(provisioningSession.getProvisioningAgent());
+		if (loadStatus != Status.OK_STATUS) {
 			dumpStatus(loadStatus);
+			return null;
+		}
+
+		IProfile profile = profileRegistry.getProfile(IProfileRegistry.SELF);
+		if (profile == null) {
+			this.log(
+					"No profile found for this installation, ending auto update process. Profiles are not available when running in Eclipse.");
 			return null;
 		}
 
@@ -324,7 +270,7 @@ public class UpdateManagerImpl implements UpdateManager {
 		}
 
 		if (iusToInstall.size() == 0) {
-			this.log(" - nothing to install");
+			this.log("Nothing found to install");
 			return null;
 		}
 
@@ -342,6 +288,30 @@ public class UpdateManagerImpl implements UpdateManager {
 
 		return null;
 	}
+	
+	private void runProvisioningJob(ProvisioningJob job) {
+		if (job == null) {
+			return;
+		}
+		
+		try {
+			new ProgressMonitorDialog(null).run(true, false, new IRunnableWithProgress() {
+				
+				@Override
+				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {						IStatus status = job.runModal(monitor);
+						if (status.getSeverity() != IStatus.ERROR) {
+							log("Provisioning job completed succesfully. Setting restart flag to true");
+							setJustUpdated(true);
+						} else {
+							log(status.getException().getMessage(), status.getException());
+						}
+				}
+			});
+		} catch (Exception e) {
+			log("Uncaught exception occurred during job execution", e);
+		} 
+		return;
+	}
 
 	private void dumpStatus(IStatus status) {
 		this.log(status.toString(), status.getException());
@@ -349,7 +319,7 @@ public class UpdateManagerImpl implements UpdateManager {
 			for (IStatus child : status.getChildren())
 				dumpStatus(child);
 	}
-	
+
 	private void setJustUpdated(boolean justUpdated) {
 		final IEclipsePreferences preferences = InstanceScope.INSTANCE.getNode(PLUGIN_ID);
 		preferences.putBoolean(JUSTUPDATED, justUpdated);
@@ -360,17 +330,22 @@ public class UpdateManagerImpl implements UpdateManager {
 		}
 	}
 	
+	private boolean isJustUpdated() {
+		final IEclipsePreferences preferences = InstanceScope.INSTANCE.getNode(PLUGIN_ID);
+		return preferences.getBoolean(JUSTUPDATED, false);
+	}
+
 	private String getRepositoryUri() {
-		if (this.repositoryLocator == null) 
+		if (this.repositoryLocator == null)
 			return System.getProperty(REPOSITORY_ARG_NAME);
-		
+
 		return this.repositoryLocator.getRepositoryLocation();
 	}
 
 	private boolean shouldFeatureBeInstalled(IInstallableUnit iu) {
 		if (this.installFilter == null)
 			return true;
-		
+
 		return this.installFilter.shouldFeatureBeInstalled(iu);
 	}
 
@@ -380,24 +355,24 @@ public class UpdateManagerImpl implements UpdateManager {
 			System.out.println(message);
 			return;
 		}
-		
+
 		logger.log(message);
 	}
-	
+
 	private void log(String message, Throwable e) {
 		/* Exception may be null when logging a Status object */
 		if (e == null) {
 			log(message);
 			return;
 		}
-		
+
 		UpdateManagerLogger logger = this.logger;
 		if (logger == null) {
 			System.out.println(message);
 			e.printStackTrace();
 			return;
 		}
-		
+
 		logger.log(message, e);
 	}
 }
