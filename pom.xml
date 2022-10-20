@@ -11,9 +11,11 @@
 	<packaging>pom</packaging>
 
 	<properties>
-        <tycho.version>2.2.0</tycho.version>
-    </properties>
-    
+		<java.version>11</java.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<tycho.version>2.7.5</tycho.version>
+	</properties>
+
 	<build>
 		<plugins>
 			<plugin>
@@ -27,6 +29,7 @@
 				<artifactId>target-platform-configuration</artifactId>
 				<version>${tycho.version}</version>
 				<configuration>
+					<executionEnvironment>JavaSE-11</executionEnvironment>
 					<target>
 						<artifact>
 							<groupId>com.modumind.updatemanager</groupId>
@@ -36,7 +39,7 @@
 					</target>
 				</configuration>
 			</plugin>
-	   	</plugins>
+		</plugins>
 	</build>
 
 	<modules>

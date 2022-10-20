@@ -6,7 +6,7 @@ Automatic-Module-Name: com.modumind.updatemanager.service
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Modular Mind, Ltd.
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.equinox.p2.core,
@@ -17,4 +17,3 @@ Require-Bundle: org.eclipse.ui,
 Import-Package: org.osgi.service.component.annotations
 Service-Component: OSGI-INF/com.modumind.updatemanager.service.impl.UpdateManagerImpl.xml
 Export-Package: com.modumind.updatemanager.service
-
